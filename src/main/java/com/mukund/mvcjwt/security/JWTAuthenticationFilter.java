@@ -3,6 +3,8 @@ package com.mukund.mvcjwt.security;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -13,6 +15,10 @@ import com.mukund.mvcjwt.entity.AuthUser;
 import com.mukund.mvcjwt.service.AuthUserDetailsService;
 import com.mukund.mvcjwt.service.JWTService;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
     private final JWTService jwtHandler;
     private final AuthUserDetailsService authUserDetailsService;
 
@@ -36,28 +43,30 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
 
-            String uuid = jwtHandler.getIDFromToken(token);
+            try {
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                String uuid = jwtHandler.getIDFromToken(token);
 
-                AuthUser user = authUserDetailsService.loadUserByUUID(UUID.fromString(uuid));
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                if (jwtHandler.isTokenValid(token, user)) {
+                    AuthUser user = authUserDetailsService.loadUserByUUID(UUID.fromString(uuid));
 
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            user, null, user.getAuthorities());
+                    if (jwtHandler.isTokenValid(token, user)) {
 
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource());
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                                user, null, user.getAuthorities());
 
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                        authenticationToken.setDetails(new WebAuthenticationDetailsSource());
+
+                        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    }
                 }
+            } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException
+                    | IllegalArgumentException e) {
+                LOGGER.warn("Exception occurred in JWTAuthenticationFilter :", e);
             }
-            filterChain.doFilter(request, response);
-
-        } else {
-            filterChain.doFilter(request, response);
-            return;
         }
+        filterChain.doFilter(request, response);
     }
 
 }

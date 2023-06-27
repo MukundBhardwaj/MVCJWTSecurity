@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +68,17 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
                 return ResponseEntity.status(HttpStatusCode.valueOf(403))
                                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
                                                 new ErrorResponse(403, "Forbidden", request.getRequestURI(),
+                                                                ZonedDateTime.now(),
+                                                                ex.getLocalizedMessage(),
+                                                                null));
+        }
+
+        @ExceptionHandler({ BadCredentialsException.class })
+        public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex,
+                        HttpServletRequest request) {
+                return ResponseEntity.status(HttpStatusCode.valueOf(400))
+                                .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
+                                                new ErrorResponse(400, "Bad Request", request.getRequestURI(),
                                                                 ZonedDateTime.now(),
                                                                 ex.getLocalizedMessage(),
                                                                 null));

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.mukund.mvcjwt.entity.AuthUser;
-import com.mukund.mvcjwt.service.AuthUserDetailsService;
 import com.mukund.mvcjwt.service.JWTService;
+import com.mukund.mvcjwt.service.implementation.AuthUserDetailsServiceImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -29,9 +29,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
     private final JWTService jwtHandler;
-    private final AuthUserDetailsService authUserDetailsService;
+    private final AuthUserDetailsServiceImpl authUserDetailsService;
 
-    public JWTAuthenticationFilter(JWTService jwtHandler, AuthUserDetailsService authUserDetailsService) {
+    public JWTAuthenticationFilter(JWTService jwtHandler, AuthUserDetailsServiceImpl authUserDetailsService) {
         this.jwtHandler = jwtHandler;
         this.authUserDetailsService = authUserDetailsService;
     }
@@ -49,7 +49,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    AuthUser user = authUserDetailsService.loadUserByUUID(UUID.fromString(uuid));
+                    AuthUser user = authUserDetailsService.loadUserByID(UUID.fromString(uuid));
 
                     if (jwtHandler.isTokenValid(token, user)) {
 

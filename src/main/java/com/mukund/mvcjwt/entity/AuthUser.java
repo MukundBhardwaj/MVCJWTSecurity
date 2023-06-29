@@ -6,7 +6,8 @@ import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import com.mukund.mvcjwt.model.AuthUserDetails;
 
 import io.micrometer.common.lang.NonNull;
 import jakarta.persistence.Column;
@@ -20,7 +21,7 @@ import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "auth_user")
-public class AuthUser implements UserDetails {
+public class AuthUser implements AuthUserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -95,21 +96,6 @@ public class AuthUser implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isEnabled() {
         return Boolean.TRUE.equals(enabled);
     }
@@ -118,9 +104,8 @@ public class AuthUser implements UserDetails {
         this.enabled = enabled;
     }
 
-    public AuthUser(UUID id, @Size(min = 3, max = 30) String name, @Email @Size(min = 3, max = 30) String username,
+    public AuthUser(@Size(min = 3, max = 30) String name, @Email @Size(min = 3, max = 30) String username,
             @Size(min = 3, max = 72) String password, @Size(max = 10) String role, Boolean enabled) {
-        this.id = id;
         this.name = name;
         this.username = username;
         this.password = password;

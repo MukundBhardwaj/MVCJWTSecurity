@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mukund.mvcjwt.dto.AuthRequest;
 import com.mukund.mvcjwt.dto.TokenDTO;
 import com.mukund.mvcjwt.entity.AuthUser;
-import com.mukund.mvcjwt.service.AuthUserDetailsService;
 import com.mukund.mvcjwt.service.JWTService;
+import com.mukund.mvcjwt.service.implementation.AuthUserDetailsServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -21,10 +21,10 @@ public class AuthenticationRestController {
 
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final AuthUserDetailsService authUserDetailsService;
+    private final AuthUserDetailsServiceImpl authUserDetailsService;
 
     public AuthenticationRestController(JWTService jwtService, AuthenticationManager authenticationManager,
-            AuthUserDetailsService authUserDetailsService) {
+            AuthUserDetailsServiceImpl authUserDetailsService) {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.authUserDetailsService = authUserDetailsService;

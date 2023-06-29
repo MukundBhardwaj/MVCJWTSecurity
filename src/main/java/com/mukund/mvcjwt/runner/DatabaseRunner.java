@@ -29,7 +29,7 @@ public class DatabaseRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (authUserRepository.count() == 0) {
-            authUserRepository.save(new AuthUser(null, "Mukund", "mukund@mail.com",
+            authUserRepository.save(new AuthUser("Mukund", "mukund@mail.com",
                     passwordEncoder.encode("Abc@1234"), "ROLE_ADMIN", true));
         }
     }

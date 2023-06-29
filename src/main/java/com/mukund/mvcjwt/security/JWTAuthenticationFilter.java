@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.mukund.mvcjwt.entity.AuthUser;
+import com.mukund.mvcjwt.model.AuthUserDetails;
 import com.mukund.mvcjwt.service.JWTService;
 import com.mukund.mvcjwt.service.implementation.AuthUserDetailsServiceImpl;
 
@@ -49,7 +49,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    AuthUser user = authUserDetailsService.loadUserByID(UUID.fromString(uuid));
+                    AuthUserDetails user = authUserDetailsService.loadUserByID(UUID.fromString(uuid));
 
                     if (jwtHandler.isTokenValid(token, user)) {
 

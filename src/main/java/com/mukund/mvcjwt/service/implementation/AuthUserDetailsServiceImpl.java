@@ -30,7 +30,8 @@ public class AuthUserDetailsServiceImpl implements AuthUserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " doesn't exist"));
     }
 
-    public AuthUser loadUserByID(UUID id) throws UsernameNotFoundException {
+    @Override
+    public AuthUserDetails loadUserByID(UUID id) throws UsernameNotFoundException {
         return authUserRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " doesn't exist"));
     }

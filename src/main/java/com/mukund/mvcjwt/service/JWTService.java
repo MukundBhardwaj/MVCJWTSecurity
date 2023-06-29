@@ -89,7 +89,7 @@ public class JWTService {
      * @param token JWT token
      * @return true if expired; false if not
      */
-    private Boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) {
         return getExpirationDateFromToken(token).before(new Date());
     }
 
@@ -135,7 +135,7 @@ public class JWTService {
      * @param userDetails UserDetails object used to get username
      * @return true if token is valid; false if token is not valid
      */
-    public Boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         return (getUsernameFromToken(token).equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
@@ -146,7 +146,7 @@ public class JWTService {
      * @param AuthUser user object used to get username
      * @return true if token is valid; false if token is not valid
      */
-    public Boolean isTokenValid(String token, AuthUser user) {
+    public boolean isTokenValid(String token, AuthUser user) {
         return (getUsernameFromToken(token).equals(user.getUsername())
                 && getIDFromToken(token).equals(user.getId().toString()) && !isTokenExpired(token));
     }

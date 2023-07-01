@@ -4,7 +4,9 @@ import java.security.Key;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -94,24 +96,57 @@ public class JWTService {
     }
 
     /**
-     * Method to generate JWT token. Uses username for claims
+     * Method to generate JWT access token. Uses username for claims
      * 
      * @param userDetails User to generate token for
      * @return JWT token
      */
     public String generateToken(UserDetails userDetails) {
-        return generateToken(jwtBuilder -> jwtBuilder.setSubject(userDetails.getUsername()).compact());
+        return generateToken(
+                jwtBuilder -> jwtBuilder.setSubject(userDetails.getUsername()),
+                Map.of("type", "access"))
+                .compact();
     }
 
     /**
-     * Method to generate JWT token. Uses UUID and username for claims
+     * Method to generate JWT refresh token. Uses username for claims
+     * 
+     * @param userDetails User to generate token for
+     * @return JWT token
+     */
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(
+                jwtBuilder -> jwtBuilder.setSubject(userDetails.getUsername()),
+                Map.of("type", "refresh"))
+                .compact();
+    }
+
+    /**
+     * Method to generate JWT access token. Uses UUID and username for claims
      * 
      * @param user User to generate token for
      * @return
      */
     public String generateToken(AuthUser user) {
         return generateToken(
-                jwtBuilder -> jwtBuilder.setId(user.getId().toString()).setSubject(user.getUsername()).compact());
+                jwtBuilder -> jwtBuilder.setId(user.getId().toString())
+                        .setSubject(user.getUsername()),
+                Map.of("type", "access"))
+                .compact();
+    }
+
+    /**
+     * Method to generate JWT refresh token. Uses UUID and username for claims
+     * 
+     * @param user User to generate token for
+     * @return
+     */
+    public String generateRefreshToken(AuthUser user) {
+        return generateToken(
+                jwtBuilder -> jwtBuilder.setId(user.getId().toString())
+                        .setSubject(user.getUsername()),
+                Map.of("type", "refresh"))
+                .compact();
     }
 
     /**
@@ -121,10 +156,12 @@ public class JWTService {
      * @param jwtBuilder
      * @return
      */
-    private String generateToken(Function<JwtBuilder, String> jwtBuilder) {
+    private JwtBuilder generateToken(UnaryOperator<JwtBuilder> jwtBuilder, Map<String, String> claims) {
+        long now = Instant.now().toEpochMilli();
         return jwtBuilder.apply(Jwts.builder()
-                .setIssuedAt(new Date(Instant.now().toEpochMilli()))
-                .setExpiration(new Date(Instant.now().toEpochMilli() + validity.toMillis()))
+                .setClaims(claims)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + validity.toMillis()))
                 .signWith(secret, SignatureAlgorithm.HS512));
     }
 

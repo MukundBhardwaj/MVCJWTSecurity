@@ -24,8 +24,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         @Override
         protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                         HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-                return ResponseEntity.status(status).body(new ErrorResponse(status.value(),
-                                status.toString().split("\s", 2)[1],
+                return ResponseEntity.status(status).body(new CustomErrorResponse(status.toString(),
                                 ((ServletWebRequest) request).getRequest().getRequestURI(), ZonedDateTime.now(),
                                 "Invalid Field Values",
                                 ex.getAllErrors().stream().map(error -> error.getDefaultMessage()).toList()));
@@ -34,53 +33,57 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         @Override
         protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
                         HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-                return ResponseEntity.status(status).body(new ErrorResponse(status.value(),
-                                status.toString().split("\s", 2)[1],
+                return ResponseEntity.status(status).body(new CustomErrorResponse(status.toString(),
                                 ((ServletWebRequest) request).getRequest().getRequestURI(), ZonedDateTime.now(),
                                 ex.getLocalizedMessage(), null));
         }
 
         @ExceptionHandler({ ResourceNotFoundException.class })
-        public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
+        public ResponseEntity<CustomErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
                         HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(404))
                                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
-                                                new ErrorResponse(404, "Not Found", request.getRequestURI(),
+                                                new CustomErrorResponse(HttpStatusCode.valueOf(404).toString(),
+                                                                request.getRequestURI(),
                                                                 ZonedDateTime.now(),
                                                                 ex.getMessage(),
                                                                 null));
         }
 
         @ExceptionHandler({ Exception.class })
-        public ResponseEntity<ErrorResponse> handleException(Exception ex,
+        public ResponseEntity<CustomErrorResponse> handleException(Exception ex,
                         HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(500))
                                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
-                                                new ErrorResponse(500, "Internal Server Error", request.getRequestURI(),
+                                                new CustomErrorResponse(HttpStatusCode.valueOf(500).toString(),
+                                                                request.getRequestURI(),
                                                                 ZonedDateTime.now(),
                                                                 ex.getLocalizedMessage(),
                                                                 null));
         }
 
         @ExceptionHandler({ AccessDeniedException.class })
-        public ResponseEntity<ErrorResponse> handleException(AccessDeniedException ex,
+        public ResponseEntity<CustomErrorResponse> handleException(AccessDeniedException ex,
                         HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(403))
                                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
-                                                new ErrorResponse(403, "Forbidden", request.getRequestURI(),
+                                                new CustomErrorResponse(HttpStatusCode.valueOf(403).toString(),
+                                                                request.getRequestURI(),
                                                                 ZonedDateTime.now(),
                                                                 ex.getLocalizedMessage(),
                                                                 null));
         }
 
         @ExceptionHandler({ BadCredentialsException.class })
-        public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex,
+        public ResponseEntity<CustomErrorResponse> handleBadCredentials(BadCredentialsException ex,
                         HttpServletRequest request) {
                 return ResponseEntity.status(HttpStatusCode.valueOf(400))
                                 .headers(headers -> headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON)).body(
-                                                new ErrorResponse(400, "Bad Request", request.getRequestURI(),
+                                                new CustomErrorResponse(HttpStatusCode.valueOf(400).toString(),
+                                                                request.getRequestURI(),
                                                                 ZonedDateTime.now(),
                                                                 ex.getLocalizedMessage(),
                                                                 null));
         }
+
 }
